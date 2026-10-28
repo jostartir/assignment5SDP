@@ -82,5 +82,25 @@ public class Main{
         Route automaticRoute = planner.plan(routes,request);
         System.out.println("Automatic strategy = " + selectedStrategy.getStrategyName());
         System.out.println("Automatic route = " + automaticRoute.id());
+
+        DeliveryRequest urgentRequest = new DeliveryRequest(DeliveryPriority.URGENT,10000,120,false);
+        DeliveryRequest economyRequest = new DeliveryRequest(DeliveryPriority.ECONOMY,3000,120,false);
+        DeliveryRequest ecoRequest = new DeliveryRequest(DeliveryPriority.ECO,10000,120,true);
+
+
+        List<DeliveryRequest> requests = List.of(urgentRequest,economyRequest,ecoRequest);
+
+        for (int i = 0; i < requests.size(); i++){
+            DeliveryRequest currentRequest = requests.get(i);
+
+            RouteStrategy strategyForRequest = selector.selectStrategy(currentRequest);
+
+            planner.setStrategy(strategyForRequest);
+
+            Route selectedRoute = planner.plan(routes,currentRequest);
+
+            System.out.println(currentRequest.priority() + " -> " + selectedRoute.id());
+
+        }
     }
 }
