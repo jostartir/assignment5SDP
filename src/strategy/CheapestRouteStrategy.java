@@ -1,10 +1,12 @@
 package strategy;
 
+import model.RouteDecision;
 import service.RouteConstraints;
 import model.DeliveryRequest;
 import model.Route;
 import exception.NoSuitableRouteException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CheapestRouteStrategy implements RouteStrategy{
@@ -33,6 +35,49 @@ public class CheapestRouteStrategy implements RouteStrategy{
 
         return cheapestRoute;
 
+
+    }
+
+
+    @Override
+    public RouteDecision explain(
+            List<Route> routes,
+            DeliveryRequest request
+    ) {
+        Route selectedRoute = selectRoute(routes, request);
+
+        double distanceCost = selectedRoute.distanceKm() * 50;
+        double totalCost = selectedRoute.cost() + distanceCost;
+
+        String explanation =
+                "Base cost: " + selectedRoute.cost()
+                        + "\nDistance: " + selectedRoute.distanceKm() + " km"
+                        + "\nCost per km: 50"
+                        + "\nDistance cost: " + distanceCost
+                        + "\nFinal cost: " + totalCost
+                        + "\nLowest total cost among suitable routes.";
+
+        List<String> rejectedRoutes = new ArrayList<>();
+
+        for (int i = 0; i < routes.size(); i++) {
+            Route route = routes.get(i);
+
+            List<String> reasons =
+                    RouteConstraints.getRejectionReasons(route, request);
+
+            for (int j = 0; j < reasons.size(); j++) {
+                rejectedRoutes.add(
+                        route.id() + ": " + reasons.get(j)
+                );
+            }
+        }
+
+        return new RouteDecision(
+                selectedRoute,
+                getStrategyName(),
+                explanation,
+                rejectedRoutes
+        );
     }
 
 

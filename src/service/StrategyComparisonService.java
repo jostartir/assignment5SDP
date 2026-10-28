@@ -3,40 +3,43 @@ package service;
 import exception.NoSuitableRouteException;
 import model.DeliveryRequest;
 import model.Route;
+import model.RouteDecision;
 import strategy.RouteStrategy;
 
 import java.util.List;
 
 public class StrategyComparisonService {
-    public void compare(List<Route> routes,DeliveryRequest request,List<RouteStrategy> strategies){
+    public void compare(
+            List<Route> routes,
+            DeliveryRequest request,
+            List<RouteStrategy> strategies
+    ) {
         System.out.println("STRATEGY COMPARISON");
         System.out.println("Priority: " + request.priority());
         System.out.println("Budget: " + request.maxBudget());
         System.out.println("Deadline: " + request.maxDeliveryMinutes());
 
-        for (int i = 0; i < strategies.size(); i++){
+        for (int i = 0; i < strategies.size(); i++) {
             RouteStrategy strategy = strategies.get(i);
 
             System.out.println();
             System.out.println(strategy.getStrategyName());
 
-            try{
+            try {
+                RouteDecision decision = strategy.explain(routes, request);
 
-                Route route = strategy.selectRoute(routes,request);
-                int totalTime = route.estimatedMinutes() + route.trafficPenaltyMinutes();
-                double totalCost = route.cost() + route.distanceKm() * 50;
+                System.out.println("Selected: " + decision.route().id());
+                System.out.println(decision.explanation());
 
-                System.out.println("Route: " + route.id());
-                System.out.println("Time: " + totalTime + " min");
-                System.out.println("Cost: " + totalCost);
-                System.out.println("Distance: " + route.distanceKm() + " km");
-                System.out.println("CO2: " + route.carbonEmission() + " kg");
+                List<String> rejectedRoutes = decision.rejectedRoutes();
 
+                for (int j = 0; j < rejectedRoutes.size(); j++) {
+                    System.out.println(rejectedRoutes.get(j));
+                }
 
-            }catch(NoSuitableRouteException exception){
+            } catch (NoSuitableRouteException exception) {
                 System.out.println(exception.getMessage());
             }
         }
-
     }
 }

@@ -1,10 +1,12 @@
 package strategy;
 
+import model.RouteDecision;
 import service.RouteConstraints;
 import model.DeliveryRequest;
 import model.Route;
 import exception.NoSuitableRouteException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BalancedRouteStrategy implements RouteStrategy{
@@ -101,6 +103,90 @@ public class BalancedRouteStrategy implements RouteStrategy{
         }
 
         return value / maxValue;
+    }
+
+    @Override
+    public RouteDecision explain(
+            List<Route> routes,
+            DeliveryRequest request
+    ) {
+        Route selectedRoute = selectRoute(routes, request);
+
+        double maxTime = 0;
+        double maxCost = 0;
+        double maxDistance = 0;
+        double maxEmission = 0;
+
+        List<String> rejectedRoutes = new ArrayList<>();
+
+        for (int i = 0; i < routes.size(); i++) {
+            Route route = routes.get(i);
+
+            List<String> reasons =
+                    RouteConstraints.getRejectionReasons(route, request);
+
+            if (!reasons.isEmpty()) {
+                for (int j = 0; j < reasons.size(); j++) {
+                    rejectedRoutes.add(
+                            route.id() + ": " + reasons.get(j)
+                    );
+                }
+
+                continue;
+            }
+
+            double time = route.estimatedMinutes()
+                    + route.trafficPenaltyMinutes();
+
+            double cost = route.cost()
+                    + route.distanceKm() * 50;
+
+            maxTime = Math.max(maxTime, time);
+            maxCost = Math.max(maxCost, cost);
+            maxDistance = Math.max(maxDistance, route.distanceKm());
+            maxEmission = Math.max(maxEmission, route.carbonEmission());
+        }
+
+        double selectedTime = selectedRoute.estimatedMinutes()
+                + selectedRoute.trafficPenaltyMinutes();
+
+        double selectedCost = selectedRoute.cost()
+                + selectedRoute.distanceKm() * 50;
+
+        double normalizedTime = normalize(selectedTime, maxTime);
+        double normalizedCost = normalize(selectedCost, maxCost);
+
+        double normalizedDistance = normalize(
+                selectedRoute.distanceKm(), maxDistance
+        );
+
+        double normalizedEmission = normalize(
+                selectedRoute.carbonEmission(), maxEmission
+        );
+
+        double score = normalizedTime * timeWeight
+                + normalizedCost * costWeight
+                + normalizedDistance * distanceWeight
+                + normalizedEmission * emissionWeight;
+
+        String explanation =
+                "Normalized time: " + normalizedTime
+                        + " * " + timeWeight
+                        + "\nNormalized cost: " + normalizedCost
+                        + " * " + costWeight
+                        + "\nNormalized distance: " + normalizedDistance
+                        + " * " + distanceWeight
+                        + "\nNormalized emission: " + normalizedEmission
+                        + " * " + emissionWeight
+                        + "\nFinal score: " + score
+                        + "\nLowest weighted score among suitable routes.";
+
+        return new RouteDecision(
+                selectedRoute,
+                getStrategyName(),
+                explanation,
+                rejectedRoutes
+        );
     }
 
     @Override

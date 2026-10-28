@@ -133,6 +133,21 @@ public class Main{
 
         comparisonService.compare(routes, request, comparisonStrategies);
 
+        EcoFriendlyRouteStrategy ecoStrategy =
+                new EcoFriendlyRouteStrategy(0.8, 0.2);
+
+        RouteDecision ecoDecision = ecoStrategy.explain(routes, request);
+
+        System.out.println(ecoDecision.strategyName());
+        System.out.println("Selected: " + ecoDecision.route().id());
+        System.out.println(ecoDecision.explanation());
+
+        List<String> ecoRejections = ecoDecision.rejectedRoutes();
+
+        for (int i = 0; i < ecoRejections.size(); i++) {
+            System.out.println(ecoRejections.get(i));
+        }
+
     }
 
 }
