@@ -3,6 +3,7 @@ import service.*;
 import strategy.*;
 import exception.*;
 
+
 import java.util.List;
 
 public class Main{
@@ -117,6 +118,20 @@ public class Main{
         } catch (NoSuitableRouteException exception) {
             System.out.println("Delivery failed: " + exception.getMessage());
         }
+
+        System.out.println("-----------");
+
+        List<RouteStrategy> comparisonStrategies = List.of(
+                new FastestRouteStrategy(),
+                new CheapestRouteStrategy(),
+                new EcoFriendlyRouteStrategy(0.8, 0.2),
+                new BalancedRouteStrategy(0.4, 0.3, 0.1, 0.2)
+        );
+
+        StrategyComparisonService comparisonService =
+                new StrategyComparisonService();
+
+        comparisonService.compare(routes, request, comparisonStrategies);
 
     }
 
