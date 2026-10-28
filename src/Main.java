@@ -1,14 +1,7 @@
-import model.DeliveryPriority;
-import model.DeliveryRequest;
-import model.Location;
-import model.Route;
-import service.RoutePlanner;
-import strategy.BalancedRouteStrategy;
-import strategy.CheapestRouteStrategy;
-import strategy.EcoFriendlyRouteStrategy;
-import strategy.FastestRouteStrategy;
-import service.StrategySelector;
-import strategy.RouteStrategy;
+import model.*;
+import service.*;
+import strategy.*;
+import exception.*;
 
 import java.util.List;
 
@@ -113,6 +106,18 @@ public class Main{
 
         System.out.println("Budget 10000 - > " + firstResult );
         System.out.println("Budget 2000 - > " + secondResult);
+
+        DeliveryRequest impossibleRequest = new DeliveryRequest(DeliveryPriority.URGENT,100,120,false);
+        planner.setStrategy(new FastestRouteStrategy());
+
+        try {
+            Route result = planner.plan(routes, impossibleRequest);
+
+            System.out.println("Selected route: " + result.id());
+        } catch (NoSuitableRouteException exception) {
+            System.out.println("Delivery failed: " + exception.getMessage());
+        }
+
     }
 
 }

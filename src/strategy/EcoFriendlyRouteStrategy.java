@@ -3,6 +3,7 @@ package strategy;
 import service.RouteConstraints;
 import model.DeliveryRequest;
 import model.Route;
+import exception.NoSuitableRouteException;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class EcoFriendlyRouteStrategy implements RouteStrategy{
         }
 
         if (ecoRoute == null){
-            throw new IllegalStateException("No suitable routes");
+            throw new NoSuitableRouteException("No route satisfies the delivery constraints");
         }
         return ecoRoute;
     }
