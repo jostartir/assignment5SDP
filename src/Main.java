@@ -7,6 +7,8 @@ import strategy.BalancedRouteStrategy;
 import strategy.CheapestRouteStrategy;
 import strategy.EcoFriendlyRouteStrategy;
 import strategy.FastestRouteStrategy;
+import service.StrategySelector;
+import strategy.RouteStrategy;
 
 import java.util.List;
 
@@ -66,5 +68,19 @@ public class Main{
 
         System.out.println("Balanced route = " + balanced);
 
+        StrategySelector selector = new StrategySelector();
+
+        selector.registrate(DeliveryPriority.URGENT,new FastestRouteStrategy());
+        selector.registrate(DeliveryPriority.ECONOMY,new CheapestRouteStrategy());
+        selector.registrate(DeliveryPriority.ECO,new EcoFriendlyRouteStrategy(0.8,0.2));
+        selector.registrate(DeliveryPriority.STANDARD,new BalancedRouteStrategy(0.4,0.3,0.1,0.2));
+
+        RouteStrategy selectedStrategy = selector.selectStrategy(request);
+
+        planner.setStrategy(selectedStrategy);
+
+        Route automaticRoute = planner.plan(routes,request);
+        System.out.println("Automatic strategy = " + selectedStrategy.getStrategyName());
+        System.out.println("Automatic route = " + automaticRoute.id());
     }
 }
