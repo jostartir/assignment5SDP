@@ -135,7 +135,35 @@ public class Main{
         comparisonService.compare(routes, request, comparisonStrategies);
 
 
+        System.out.println("-----------------");
+        System.out.println("FAILURE SCENARIOS");
 
+        planner.setStrategy(new FastestRouteStrategy());
+
+        try {
+            planner.plan(List.of(), request);
+        } catch (NoSuitableRouteException exception) {
+            System.out.println("Empty list: " + exception.getMessage());
+        }
+
+        try {
+            new BalancedRouteStrategy(0.4, 0.3, 0.1, 0.3);
+        } catch (IllegalArgumentException exception) {
+            System.out.println("Invalid weights: " + exception.getMessage());
+        }
+
+        DeliveryRequest noValidRouteRequest = new DeliveryRequest(
+                DeliveryPriority.URGENT,
+                100,
+                120,
+                false
+        );
+
+        try {
+            planner.plan(routes, noValidRouteRequest);
+        } catch (NoSuitableRouteException exception) {
+            System.out.println("No valid route: " + exception.getMessage());
+        }
 
     }
 
