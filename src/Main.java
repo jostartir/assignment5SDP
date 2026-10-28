@@ -125,13 +125,15 @@ public class Main{
                 new FastestRouteStrategy(),
                 new CheapestRouteStrategy(),
                 new EcoFriendlyRouteStrategy(0.8, 0.2),
-                new BalancedRouteStrategy(0.4, 0.3, 0.1, 0.2)
+                new BalancedRouteStrategy(0.4, 0.3, 0.1, 0.2),
+                new DistanceFirstStrategy()
         );
 
         StrategyComparisonService comparisonService =
                 new StrategyComparisonService();
 
         comparisonService.compare(routes, request, comparisonStrategies);
+
 
 
 
