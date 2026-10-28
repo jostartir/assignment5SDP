@@ -1,5 +1,6 @@
 package strategy;
 
+import service.RouteConstraints;
 import model.DeliveryRequest;
 import model.Route;
 
@@ -11,7 +12,7 @@ public class FastestRouteStrategy implements RouteStrategy{
         Route fastestRoute = null;
         for (int i = 0; i < routes.size(); i++) {
             Route route = routes.get(i);
-            if (!route.available()) {
+            if (!RouteConstraints.isSuitable(route,request)) {
                 continue;
             }
             int totalTime = route.estimatedMinutes() + route.trafficPenaltyMinutes();
@@ -29,7 +30,7 @@ public class FastestRouteStrategy implements RouteStrategy{
         }
 
         if (fastestRoute == null){
-            throw new IllegalStateException("No available routes");
+            throw new IllegalStateException("No suitable routes");
         }
 
         return fastestRoute;

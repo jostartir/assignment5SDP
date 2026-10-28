@@ -1,5 +1,6 @@
 package strategy;
 
+import service.RouteConstraints;
 import model.DeliveryRequest;
 import model.Route;
 
@@ -13,7 +14,7 @@ public class CheapestRouteStrategy implements RouteStrategy{
         for (int i = 0; i < routes.size();i++){
             Route route = routes.get(i);
 
-            if (!route.available()){
+            if (!RouteConstraints.isSuitable(route,request)) {
                 continue;
             }
 
@@ -26,7 +27,7 @@ public class CheapestRouteStrategy implements RouteStrategy{
 
         }
         if (cheapestRoute == null){
-            throw new IllegalStateException("No available routes");
+            throw new IllegalStateException("No suitable routes");
         }
 
         return cheapestRoute;

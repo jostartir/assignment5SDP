@@ -101,6 +101,18 @@ public class Main{
 
             System.out.println(currentRequest.priority() + " -> " + selectedRoute.id());
 
+
         }
+        DeliveryRequest largeBudgetRequest = new DeliveryRequest(DeliveryPriority.URGENT,10000,120,false);
+        DeliveryRequest smallBudgetRequest = new DeliveryRequest(DeliveryPriority.URGENT,2000,120,false);
+
+        planner.setStrategy(new FastestRouteStrategy());
+
+        Route firstResult = planner.plan(routes,largeBudgetRequest);
+        Route secondResult = planner.plan(routes,smallBudgetRequest);
+
+        System.out.println("Budget 10000 - > " + firstResult );
+        System.out.println("Budget 2000 - > " + secondResult);
     }
+
 }

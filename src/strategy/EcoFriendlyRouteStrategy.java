@@ -1,5 +1,6 @@
 package strategy;
 
+import service.RouteConstraints;
 import model.DeliveryRequest;
 import model.Route;
 
@@ -22,7 +23,7 @@ public class EcoFriendlyRouteStrategy implements RouteStrategy{
         for (int i = 0; i < routes.size(); i++){
             Route route = routes.get(i);
 
-            if (!route.available()){
+            if (!RouteConstraints.isSuitable(route,request)) {
                 continue;
             }
             double score = route.carbonEmission() * emissionWeight + route.distanceKm() * distanceWeight;
@@ -34,7 +35,7 @@ public class EcoFriendlyRouteStrategy implements RouteStrategy{
         }
 
         if (ecoRoute == null){
-            throw new IllegalStateException("No available routes");
+            throw new IllegalStateException("No suitable routes");
         }
         return ecoRoute;
     }

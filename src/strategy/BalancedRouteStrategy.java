@@ -1,5 +1,6 @@
 package strategy;
 
+import service.RouteConstraints;
 import model.DeliveryRequest;
 import model.Route;
 
@@ -42,7 +43,7 @@ public class BalancedRouteStrategy implements RouteStrategy{
         double maxEmission = 0;
         for (int i = 0; i < routes.size();i++){
             Route route = routes.get(i);
-            if (!route.available()){
+            if (!RouteConstraints.isSuitable(route,request)) {
                 continue;
             }
 
@@ -60,7 +61,7 @@ public class BalancedRouteStrategy implements RouteStrategy{
 
         for (int i = 0; i < routes.size(); i++){
             Route route = routes.get(i);
-            if (!route.available()){
+            if (!RouteConstraints.isSuitable(route,request)) {
                 continue;
             }
 
@@ -87,7 +88,7 @@ public class BalancedRouteStrategy implements RouteStrategy{
 
         }
         if (balancedRoute == null){
-            throw new IllegalStateException("No available routes");
+            throw new IllegalStateException("No suitable routes");
         }
 
         return balancedRoute;
